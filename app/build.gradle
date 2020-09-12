@@ -16,9 +16,9 @@ android {
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-    buildConfigField("String", "GOOGLE_API_KEY", GOOGLE_API_KEY)
-    resValue "string", "google_api_key", GOOGLE_API_KEY
-    resValue "string", "google_map_api_key", GOOGLE_MAP_API_KEY
+    buildConfigField("String", "GOOGLE_API_KEY", NEARBY_GOOGLE_API_KEY)
+    resValue "string", "google_map_api_key", NEARBY_GOOGLE_API_KEY
+
     buildConfigField("String", "FOURSQUARE_API_KEY", FOURSQUARE_API_KEY)
     buildConfigField("String", "FOURSQUARE_SECRET", FOURSQUARE_SECRET)
   }
@@ -72,6 +72,8 @@ dependencies {
   implementation deps.viewModelKtx
   implementation deps.viewmodelSavedstate
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+  implementation 'com.google.android.gms:play-services-maps:17.0.0'
+  implementation 'androidx.appcompat:appcompat:1.2.0'
   kapt deps.lifecycleCompiler
 
   //navigation
