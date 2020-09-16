@@ -19,8 +19,6 @@ android {
     buildConfigField("String", "GOOGLE_API_KEY", NEARBY_GOOGLE_API_KEY)
     resValue "string", "google_map_api_key", NEARBY_GOOGLE_API_KEY
 
-    buildConfigField("String", "FOURSQUARE_API_KEY", FOURSQUARE_API_KEY)
-    buildConfigField("String", "FOURSQUARE_SECRET", FOURSQUARE_SECRET)
   }
 
   buildTypes {
@@ -60,6 +58,8 @@ android {
 
 dependencies {
   implementation fileTree(dir: "libs", include: ["*.jar"])
+  implementation project(':domain')
+  implementation project(':data')
   implementation deps.kotlin
   implementation deps.appcompat
   implementation deps.androidxCore

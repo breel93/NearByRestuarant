@@ -1,0 +1,70 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+  compileSdkVersion versions.compileSdk
+  buildToolsVersion versions.buildTools
+
+  defaultConfig {
+    minSdkVersion versions.minSdk
+    targetSdkVersion versions.compileSdk
+    versionCode 1
+    versionName "1.0"
+
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    consumerProguardFiles "consumer-rules.pro"
+
+    buildConfigField("String", "FOURSQUARE_API_KEY", FOURSQUARE_API_KEY)
+    buildConfigField("String", "FOURSQUARE_SECRET", FOURSQUARE_SECRET)
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+  }
+  compileOptions {
+    targetCompatibility JavaVersion.VERSION_1_8
+    sourceCompatibility JavaVersion.VERSION_1_8
+  }
+  kotlinOptions {
+    jvmTarget = JavaVersion.VERSION_1_8.toString()
+  }
+}
+
+dependencies {
+  implementation fileTree(dir: "libs", include: ["*.jar"])
+  implementation project(':domain')
+
+  implementation deps.kotlin
+
+  //dagger
+  implementation deps.hiltAndroid
+  implementation deps.hiltCommon
+  kapt deps.hiltAndroidCompiler
+  kapt deps.hiltCompiler
+
+  //retrofit
+  implementation deps.retrofit
+  implementation deps.moshi
+  implementation deps.kotlinMoshi
+  implementation deps.kotlinMoshiGen
+
+  //okhttp
+  implementation deps.loggingInterceptor
+  implementation deps.okhttp
+
+  //coroutines
+  implementation deps.coroutines
+
+  //test
+  testImplementation testDeps.junit
+  testImplementation testDeps.mockitoVersion
+  testImplementation testDeps.mockitoKotlin
+  testImplementation testDeps.mockwebserver
+  testImplementation testDeps.googleTruth
+  testImplementation testDeps.coroutines_test
+}

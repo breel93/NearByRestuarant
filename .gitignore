@@ -15,6 +15,7 @@
 # Built application files
 *.apk
 *.ap_
+*.rules.pro
 
 # Files for the ART/Dalvik VM
 *.dex

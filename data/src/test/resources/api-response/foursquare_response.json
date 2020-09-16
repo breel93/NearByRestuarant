@@ -1,0 +1,19 @@
+{
+  "response": {
+    "venues": [
+      {
+        "id": "4c5ef77bfff99c74eda954d3",
+        "name": "Eataly Flatiron",
+        "location": {
+          "address": "200 5th Ave",
+          "crossStreet": "at W 23rd St",
+          "lat": 40.74198696405861,
+          "lng": -73.98991319280194,
+          "city": "New York",
+          "country": "United States"
+        }
+      }
+    ],
+    "confident": false
+  }
+}

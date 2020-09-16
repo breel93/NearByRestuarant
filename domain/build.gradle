@@ -1,0 +1,55 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+  compileSdkVersion versions.compileSdk
+  buildToolsVersion versions.buildTools
+
+  defaultConfig {
+    minSdkVersion versions.minSdk
+    targetSdkVersion versions.compileSdk
+    versionCode 1
+    versionName "1.0"
+
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    consumerProguardFiles "consumer-rules.pro"
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+  }
+  tasks.withType(org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompile).all {
+    kotlinOptions.freeCompilerArgs += [
+        "-Xuse-experimental=kotlinx.coroutines.ExperimentalCoroutinesApi",
+        "-Xopt-in=kotlinx.coroutines.FlowPreview",
+        "-XXLanguage:+InlineClasses"
+    ]
+  }
+}
+
+dependencies {
+  implementation fileTree(dir: "libs", include: ["*.jar"])
+  implementation deps.kotlin
+
+  //coroutines
+  implementation deps.coroutines
+  implementation deps.coroutinesAndroid
+
+  //dagger
+  implementation deps.hiltAndroid
+  implementation deps.hiltCommon
+  kapt deps.hiltAndroidCompiler
+  kapt deps.hiltCompiler
+
+  testImplementation testDeps.coroutines_test
+  testImplementation testDeps.mockitoVersion
+  testImplementation testDeps.mockitoKotlin
+  testImplementation testDeps.googleTruth
+  testImplementation testDeps.junit
+
+}
