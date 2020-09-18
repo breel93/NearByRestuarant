@@ -314,7 +314,8 @@ class MapsFragment : Fragment() {
     grantResults: IntArray
   ) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    if(requestCode == REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+    if(requestCode == REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE && grantResults[0]
+      == PackageManager.PERMISSION_GRANTED){
       locationRequest()
       updateUI()
       subscribeToLocationUpdates()

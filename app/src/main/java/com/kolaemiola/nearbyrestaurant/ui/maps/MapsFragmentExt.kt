@@ -27,7 +27,8 @@ const val REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34
 fun MapsFragment.requestForegroundPermissions() {
   val provideRationale = foregroundPermissionApproved()
   if (provideRationale) {
-    Snackbar.make(this.requireView(), R.string.permission_rationale, Snackbar.LENGTH_LONG)
+    Snackbar.make(this.requireView(), R.string.permission_rationale,
+      Snackbar.LENGTH_LONG)
       .setAction(R.string.ok) {
         requestPermissions(
           arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
