@@ -8,11 +8,16 @@
     android:layout_height="match_parent"
     tools:context=".ui.maps.MapsFragment"
     android:animateLayoutChanges="true">
+
   <com.google.android.gms.maps.MapView
       android:id="@+id/cityMap"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:transitionName="@string/city_map_transition_name"/>
+      android:transitionName="@string/city_map_transition_name"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="parent" />
 
   <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/restaurantList"
@@ -30,9 +35,23 @@
       android:id="@+id/findRestaurantProgress"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:visibility="gone"
+      android:layout_marginBottom="30dp"
+
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="@+id/restaurantList"
       app:layout_constraintStart_toStartOf="@+id/restaurantList"
       app:layout_constraintTop_toTopOf="@id/restaurantList" />
+
+  <TextView
+      android:id="@+id/not_found_text"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="32dp"
+      android:text="@string/no_restaurant_found_around_you"
+      android:textSize="20sp"
+      android:textColor="@color/darkTeal"
+      android:visibility="gone"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="@+id/restaurantList"
+      app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

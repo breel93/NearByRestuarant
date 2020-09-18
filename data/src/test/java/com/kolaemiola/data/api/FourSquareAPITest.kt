@@ -23,8 +23,10 @@ import com.google.common.truth.Truth.assertThat
 import com.kolaemiola.data.BuildConfig.FOURSQUARE_API_KEY
 import com.kolaemiola.data.BuildConfig.FOURSQUARE_SECRET
 import com.kolaemiola.data.utils.MockVenueData
+import com.kolaemiola.data.utils.RequestDispatcher
 
 internal class FourSquareAPITest : BaseTest() {
+
 
   @Test
   fun `should return correct venues on success`() = runBlocking {

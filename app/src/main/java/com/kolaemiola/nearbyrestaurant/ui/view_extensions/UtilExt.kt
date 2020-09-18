@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package com.kolaemiola.nearbyrestaurant.ui
+package com.kolaemiola.nearbyrestaurant.ui.view_extensions
 
 import android.content.Context
 import android.graphics.Bitmap

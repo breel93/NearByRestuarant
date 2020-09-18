@@ -22,7 +22,7 @@ import com.kolaemiola.domain.model.LocationModel
 import com.kolaemiola.domain.model.VenueModel
 import com.kolaemiola.domain.model.VenuesQueryParams
 import com.kolaemiola.domain.usecase.GetRestaurantUseCase
-import com.kolaemiola.nearbyrestaurant.model.RestaurantViewState
+import com.kolaemiola.nearbyrestaurant.model.state.RestaurantViewState
 import com.kolaemiola.nearbyrestaurant.recent_venue.CachedVenueRepo
 import com.kolaemiola.nearbyrestaurant.util.CoroutineTestRule
 import com.kolaemiola.nearbyrestaurant.util.observeOnce
@@ -70,7 +70,7 @@ class MainViewModelTest {
     )
 
     val venues = listOf(venue)
-    val queryParams = VenuesQueryParams("", "", 250, 10)
+    val queryParams = VenuesQueryParams("", "New York", 250, 10)
     // given
     val channel = Channel<List<VenueModel>>()
     val flow = channel.consumeAsFlow()
@@ -80,6 +80,8 @@ class MainViewModelTest {
     launch {
       channel.send(venues)
     }
+
+    //then
     viewModel.getRestaurants(queryParams.latLong, queryParams.radius, queryParams.limit)
     viewModel.searchRestaurantState.observeOnce { state ->
       verify(restaurantViewStateObserver).onChanged(state)

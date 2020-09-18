@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package com.kolaemiola.nearbyrestaurant.ui.maps
+package com.kolaemiola.nearbyrestaurant.ui.view_extensions
 
 import android.content.Context
 import android.location.Location
@@ -34,10 +34,11 @@ import kotlinx.coroutines.tasks.await
 inline fun fusedLocationFlow(
   context: Context,
   configLocationRequest: LocationRequest.() -> Unit
-): Flow<Location> = fusedLocationFlow(
-  locationRequest = LocationRequest.create().apply(configLocationRequest),
-  context = context
-)
+): Flow<Location> =
+  fusedLocationFlow(
+    locationRequest = LocationRequest.create().apply(configLocationRequest),
+    context = context
+  )
 
 @Throws(SecurityException::class)
 @ExperimentalCoroutinesApi

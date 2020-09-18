@@ -28,10 +28,10 @@ import com.google.android.gms.location.LocationRequest
 import com.kolaemiola.domain.model.VenuesQueryParams
 import com.kolaemiola.domain.usecase.GetRestaurantUseCase
 import com.kolaemiola.nearbyrestaurant.mapper.toAppModel
-import com.kolaemiola.nearbyrestaurant.model.RestaurantViewState
+import com.kolaemiola.nearbyrestaurant.model.state.RestaurantViewState
 import com.kolaemiola.nearbyrestaurant.model.Venue
 import com.kolaemiola.nearbyrestaurant.recent_venue.CachedVenueRepo
-import com.kolaemiola.nearbyrestaurant.ui.maps.fusedLocationFlow
+import com.kolaemiola.nearbyrestaurant.ui.view_extensions.fusedLocationFlow
 import com.kolaemiola.nearbyrestaurant.util.Success
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -57,12 +57,9 @@ class MainViewModel @ViewModelInject constructor(
   val usersLocation: LiveData<Location> = _usersLastLocation
 
   private val recentCachedList = ArrayList<Venue>()
-
-  private var _cachedVenues = MutableLiveData<List<Venue>>()
-  val cachedVenues: LiveData<List<Venue>> = _cachedVenues
-
   init {
-    _searchRestaurantState.value = RestaurantViewState()
+    _searchRestaurantState.value =
+      RestaurantViewState()
   }
 
   fun getRestaurants(latLong: String, radius: Int, limit: Int) {
@@ -71,20 +68,21 @@ class MainViewModel @ViewModelInject constructor(
       val venuesQueryParams = VenuesQueryParams(latLong, near, radius, limit)
       getRestaurantUseCase(venuesQueryParams).onStart {
         _searchRestaurantState.value = _searchRestaurantState.value?.copy(
-          loading = true
-        )
+            loading = true
+          )
       }.catch {
         _searchRestaurantState.value = _searchRestaurantState.value?.copy(
           loading = false,
           error = it.message
         )
+
       }.collect { results ->
         _searchRestaurantState.value = _searchRestaurantState.value?.copy(
           loading = false,
           venues = results.map {
             it.toAppModel(it.locationModel.toAppModel())
           }.also {
-            Timber.i("characters fetched successfully: $it ")
+            Timber.i("venues fetched successfully: $it ")
           }
         )
       }
@@ -93,7 +91,10 @@ class MainViewModel @ViewModelInject constructor(
 
   fun locationRequest(locationRequest: LocationRequest) {
     viewModelScope.launch {
-      fusedLocationFlow(locationRequest, getApplication()).collect { location ->
+      fusedLocationFlow(
+        locationRequest,
+        getApplication()
+      ).collect { location ->
         _usersLastLocation.value = location
       }
     }
@@ -120,7 +121,6 @@ class MainViewModel @ViewModelInject constructor(
       is Success -> {
         recentCachedList.clear()
         recentCachedList.addAll(cachedVenues.data)
-        _cachedVenues.value = recentCachedList
         if (recentCachedList.isNotEmpty()) {
           _searchRestaurantState.value =
             _searchRestaurantState.value?.copy(venuesInitial = cachedVenues.data, loading = false)
@@ -145,7 +145,7 @@ class MainViewModel @ViewModelInject constructor(
 
   /***
    * temp, TODO clean up getting city name
-   * because of possible memory likes
+   *
    */
   private fun getCityName(application: Application): String {
     val location = _usersLastLocation.value

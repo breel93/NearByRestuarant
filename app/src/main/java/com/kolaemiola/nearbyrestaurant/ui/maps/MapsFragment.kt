@@ -15,11 +15,13 @@
 */
 package com.kolaemiola.nearbyrestaurant.ui.maps
 
+import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -39,14 +41,15 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.kolaemiola.nearbyrestaurant.R
 import com.kolaemiola.nearbyrestaurant.databinding.FragmentMapsBinding
-import com.kolaemiola.nearbyrestaurant.extensions.hide
-import com.kolaemiola.nearbyrestaurant.extensions.show
+import com.kolaemiola.nearbyrestaurant.ui.view_extensions.hide
+import com.kolaemiola.nearbyrestaurant.ui.view_extensions.show
 import com.kolaemiola.nearbyrestaurant.model.Venue
 import com.kolaemiola.nearbyrestaurant.snap.SnapOnScrollListener
 import com.kolaemiola.nearbyrestaurant.ui.MainViewModel
 import com.kolaemiola.nearbyrestaurant.ui.adapter.RestaurantRecyclerAdapter
 import com.kolaemiola.nearbyrestaurant.ui.adapter.VenueClickListener
-import com.kolaemiola.nearbyrestaurant.ui.bitmapDescriptorFromVector
+import com.kolaemiola.nearbyrestaurant.ui.view_extensions.bitmapDescriptorFromVector
+import com.kolaemiola.nearbyrestaurant.ui.view_extensions.showToast
 import com.kolaemiola.nearbyrestaurant.util.Constant.Companion.RESTAURANT
 import com.kolaemiola.nearbyrestaurant.util.NetworkUtils
 import dagger.hilt.android.AndroidEntryPoint
@@ -69,6 +72,12 @@ class MapsFragment : Fragment() {
   private lateinit var selectedMarker: BitmapDescriptor
   private val snapHelper = LinearSnapHelper()
 
+
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    navController = Navigation.findNavController(view)
+  }
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
@@ -85,21 +94,30 @@ class MapsFragment : Fragment() {
 
     if (foregroundPermissionApproved()) {
       locationRequest()
+      updateUI()
       subscribeToLocationUpdates()
     } else {
       requestForegroundPermissions()
     }
-    updateUI()
-    viewModel.getRecentChecked()
-    restaurantMarker = bitmapDescriptorFromVector(requireContext(), R.drawable.ic_food_tray)!!
-    selectedMarker =
-      bitmapDescriptorFromVector(requireContext(), R.drawable.ic_food_tray_selected)!!
-    return binding.root
-  }
 
-  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-    super.onViewCreated(view, savedInstanceState)
-    navController = Navigation.findNavController(view)
+    viewModel.getRecentChecked()
+    restaurantMarker = bitmapDescriptorFromVector(
+      requireContext(),
+      R.drawable.ic_food_tray
+    )!!
+    selectedMarker =
+      bitmapDescriptorFromVector(
+        requireContext(),
+        R.drawable.ic_food_tray_selected
+      )!!
+    onNetworkChange { isConnected ->
+      if(isConnected){
+        updateUI()
+      }else{
+        requireContext().showToast(getString(R.string.error_check_internet_connection))
+      }
+    }
+    return binding.root
   }
 
   private fun updateUI() {
@@ -113,9 +131,11 @@ class MapsFragment : Fragment() {
         getRestaurantState(venues)
       }
       loadingState(state.loading!!)
-//      errorState(state.error!!)
+      errorState(state.error!!)
     }
   }
+
+
 
   private fun resetMap() {
     viewMap.clear()
@@ -126,6 +146,7 @@ class MapsFragment : Fragment() {
     viewMap = googleMap
     viewMap.setOnMarkerClickListener { clickedMarker ->
       viewModel.selectPlaceOnRestaurantList(markerList.indexOf(clickedMarker))
+      Toast.makeText(requireContext(), "some", Toast.LENGTH_LONG).show()
       true
     }
     locationRequest()
@@ -171,6 +192,7 @@ class MapsFragment : Fragment() {
       }
     } else {
       resetMap()
+      binding.notFoundText.show()
     }
 
     viewModel.currentMarkerPosition.observe(viewLifecycleOwner) {
@@ -179,12 +201,10 @@ class MapsFragment : Fragment() {
   }
 
   private fun handleNetworkChange() {
-    onNetworkChange { isConnceted ->
-    }
+
   }
 
-  private fun loadmore() {
-  }
+
 
   private fun loadingState(loading: Boolean) {
     if (loading) {
@@ -193,6 +213,14 @@ class MapsFragment : Fragment() {
     } else {
       binding.findRestaurantProgress.hide()
       binding.restaurantList.show()
+    }
+  }
+
+  private fun errorState(error: String) {
+    if(error.isNotBlank()){
+      binding.findRestaurantProgress.hide()
+      binding.restaurantList.hide()
+      requireContext().showToast(error)
     }
   }
 
@@ -252,6 +280,9 @@ class MapsFragment : Fragment() {
     }
   }
 
+  private fun loadmore() {
+  }
+
   override fun onLowMemory() {
     super.onLowMemory()
     mapView.onLowMemory()
@@ -277,6 +308,22 @@ class MapsFragment : Fragment() {
     mapView.onStart()
   }
 
+  override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<out String>,
+    grantResults: IntArray
+  ) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    if(requestCode == REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+      locationRequest()
+      updateUI()
+      subscribeToLocationUpdates()
+
+    }else{
+      requireContext().showToast(getString(R.string.permission_denied_explanation))
+    }
+  }
+
   override fun onResume() {
     super.onResume()
     mapView.onResume()
@@ -292,9 +339,9 @@ class MapsFragment : Fragment() {
     mapView.onSaveInstanceState(mapViewBundle)
   }
 
-  fun onNetworkChange(block: (Boolean) -> Unit) {
+  private fun onNetworkChange(block: (Boolean) -> Unit) {
     NetworkUtils.getNetworkStatus(requireContext())
-      .observe(this, Observer { isConnected ->
+      .observe(viewLifecycleOwner, Observer { isConnected ->
         block(isConnected)
       })
   }

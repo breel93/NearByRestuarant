@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package com.kolaemiola.nearbyrestaurant.extensions
+package com.kolaemiola.nearbyrestaurant.ui.view_extensions
 
 import android.content.Context
 import android.view.View
@@ -28,7 +28,6 @@ internal fun View.gone() {
 internal fun View.hide() {
   this.visibility = View.INVISIBLE
 }
-
-internal fun Toast.showToast(message: String, context: Context) {
-  Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+internal fun Context.showToast(message: String) {
+  Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
 }

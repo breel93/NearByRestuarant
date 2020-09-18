@@ -16,15 +16,16 @@
 package com.kolaemiola.nearbyrestaurant.ui
 
 import com.kolaemiola.nearbyrestaurant.model.Location
-import com.kolaemiola.nearbyrestaurant.model.RestaurantViewState
+import com.kolaemiola.nearbyrestaurant.model.state.RestaurantViewState
 import com.kolaemiola.nearbyrestaurant.model.Venue
 
 object MockVenueStateData {
-  val mockVenueStateData = RestaurantViewState(
-    mockVenueList,
-    mockVenueList,
-    false
-  )
+  val mockVenueStateData =
+    RestaurantViewState(
+      mockVenueList,
+      mockVenueList,
+      false
+    )
 
   val mockVenueList: List<Venue>
     get() {

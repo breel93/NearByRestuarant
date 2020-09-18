@@ -15,6 +15,8 @@
 */
 package com.kolaemiola.data.utils
 
+import com.kolaemiola.data.BuildConfig.FOURSQUARE_API_KEY
+import com.kolaemiola.data.BuildConfig.FOURSQUARE_SECRET
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
@@ -32,6 +34,12 @@ internal class RequestDispatcher : Dispatcher() {
         createSuccessResponseFromFile(file = "foursquare_response.json")
       }
       else -> throw IllegalArgumentException("Unknown Request Path ${request.path}")
+    }
+  }
+
+  val errorDispatcher = object : Dispatcher() {
+    override fun dispatch(request: RecordedRequest): MockResponse {
+      return createErrorResponseFromFile(file = "error.json")
     }
   }
 
@@ -59,7 +67,7 @@ internal class RequestDispatcher : Dispatcher() {
 
   companion object {
     const val QUERY_PATH: String = "/v2/venues"
-    const val SEARCH_QUERY = "client_id=41QDOQRUPWUNPX43MELWU20LIEWECU2GR3CJQXLNSKCMODK0&client_secret=ZPSTITAL2EM3DJ0X2N5B2RBDVHLW1QFBGUHJJWXX0GOZFJYV&categoryId=4d4b7105d754a06374d81259&ll=40.7484%2C-73.9857&near=new%2Byork&radius=250&limit=10&v=20180323"
+    const val SEARCH_QUERY = "client_id=$FOURSQUARE_API_KEY&client_secret=$FOURSQUARE_SECRET&categoryId=4d4b7105d754a06374d81259&ll=40.7484%2C-73.9857&near=new%2Byork&radius=250&limit=10&v=20180323"
     private const val BYTES_PER_PERIOD = 1024L
     private const val PERIOD = 2L
   }
