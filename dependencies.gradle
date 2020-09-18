@@ -37,6 +37,9 @@ ext {
       moshi               : '2.4.0',
       kotlinMoshi         : '1.9.2',
 
+      //gson
+      gson                : '2.8.6',
+
       //google
       playservice_version : '17.0.0',
       google_services     : '4.3.3',
@@ -116,6 +119,8 @@ ext {
       //coroutines
       coroutines            : 'org.jetbrains.kotlinx:kotlinx-coroutines-core:' + versions.coroutines,
       coroutinesAndroid     : 'org.jetbrains.kotlinx:kotlinx-coroutines-android:' + versions.coroutines_android,
+
+      gson                  :  'com.google.code.gson:gson:' + versions.gson,
 
       //google
       googleMaps      :'com.google.android.gms:play-services-maps:' + versions.playservice_version,

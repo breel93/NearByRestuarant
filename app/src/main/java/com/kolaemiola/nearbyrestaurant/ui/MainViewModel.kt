@@ -1,51 +1,66 @@
 package com.kolaemiola.nearbyrestaurant.ui
 
+import android.app.Application
+import android.location.Address
+import android.location.Geocoder
+import android.location.Location
 import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import com.google.android.gms.location.LocationRequest
 import com.kolaemiola.domain.model.VenuesQueryParams
 import com.kolaemiola.domain.usecase.GetRestaurantUseCase
 import com.kolaemiola.nearbyrestaurant.model.RestaurantViewState
 import com.kolaemiola.nearbyrestaurant.mapper.toAppModel
+import com.kolaemiola.nearbyrestaurant.model.Venue
+import com.kolaemiola.nearbyrestaurant.recent_venue.CachedVenueRepo
+import com.kolaemiola.nearbyrestaurant.ui.maps.fusedLocationFlow
+import com.kolaemiola.nearbyrestaurant.util.Success
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Locale
 
 class MainViewModel @ViewModelInject constructor(
-  private val getRestaurantUseCase: GetRestaurantUseCase
-) : ViewModel(){
+  private val getRestaurantUseCase: GetRestaurantUseCase,
+  private val cachedVenueRepo: CachedVenueRepo,
+  application: Application
+) : AndroidViewModel(application){
 
   private val _searchRestaurantState = MutableLiveData<RestaurantViewState>()
   val searchRestaurantState : LiveData<RestaurantViewState> = _searchRestaurantState
 
+  private val _usersLastLocation = MutableLiveData<Location>()
+  val usersLocation : LiveData<Location> = _usersLastLocation
+
+
+  private val recentCachedList = ArrayList<Venue>()
+
+  private var _cachedVenues = MutableLiveData<List<Venue>>()
+  val cachedVenues: LiveData<List<Venue>> = _cachedVenues
+
   init {
     _searchRestaurantState.value = RestaurantViewState()
+
   }
 
 
-  fun getRestaurants(latLong:String, near:String, radius:Int, limit:Int){
+  fun getRestaurants(latLong:String, radius: Int, limit: Int ){
     viewModelScope.launch {
-      val venuesQueryParams = VenuesQueryParams(latLong,near,radius,limit)
+      val near = getCityName(application = getApplication())
+      val venuesQueryParams = VenuesQueryParams(latLong, near,radius,limit)
       getRestaurantUseCase(venuesQueryParams).onStart {
-        Log.d("find this", "Started")
         _searchRestaurantState.value = _searchRestaurantState.value?.copy(
           loading = true
         )
       }.catch {
-        Log.d("find this", it.message!!)
-        Timber.i("characters fetched successfully: error")
         _searchRestaurantState.value = _searchRestaurantState.value?.copy(
           loading = false,
-          error = "some error"
+          error = it.message
         )
       }.collect { results ->
-        Log.d("find this", "The message  $results")
-        Timber.i("characters fetched successfully: $results ")
         _searchRestaurantState.value = _searchRestaurantState.value?.copy(
           loading = false,
           venues = results.map { it.toAppModel(it.locationModel.toAppModel())
@@ -55,6 +70,70 @@ class MainViewModel @ViewModelInject constructor(
         )
       }
     }
+
+  }
+
+  fun locationRequest(locationRequest: LocationRequest){
+    viewModelScope.launch {
+      fusedLocationFlow(locationRequest, getApplication()).collect{ location ->
+        _usersLastLocation.value = location
+      }
+    }
+  }
+
+
+  // For scrolling to marker position based on place of interest results
+  private val _currentMarkerPosition = MutableLiveData<Int>()
+  val currentMarkerPosition: LiveData<Int> get() = _currentMarkerPosition
+
+  fun setCurrentMarkerPosition(placeIndex: Int) {
+    _currentMarkerPosition.value = placeIndex
+  }
+
+  // For scrolling to restaurant index based on marker clicked
+  private val _currentPlaceIndex = MutableLiveData<Int>()
+  val currentPlaceIndex: LiveData<Int> get() = _currentPlaceIndex
+  fun selectPlaceOnRestaurantList(placeIndex: Int) {
+    _currentPlaceIndex.value = placeIndex
+  }
+
+  //cache region
+  fun getRecentChecked() {
+    when (val cachedVenues = cachedVenueRepo.getCachedVenue()) {
+      is Success -> {
+        recentCachedList.clear()
+        recentCachedList.addAll(cachedVenues.data)
+        _cachedVenues.value = recentCachedList
+        if(recentCachedList.isNotEmpty()){
+          _searchRestaurantState.value = _searchRestaurantState.value?.copy(venuesInitial = cachedVenues.data, loading = false)
+        }
+      }
+    }
+  }
+
+  private var _addRecentCheckData = MutableLiveData<Boolean>()
+  val addRecentCheckData: LiveData<Boolean>
+    get() = _addRecentCheckData
+  fun updateRecentCheck(venues: List<Venue>) {
+    cachedVenueRepo.updateCacheVenue(venues = venues) { updateCompleted ->
+      _addRecentCheckData.value = updateCompleted
+    }
+  }
+
+  fun clearCache(){
+    cachedVenueRepo.clearCacheVenue {}
+  }
+
+
+  /***
+  * temp, TODO clean up getting city name
+   * because of possible memory likes
+   */
+  private fun getCityName(application: Application) : String{
+   val location = _usersLastLocation.value
+    val geocoder = Geocoder(application.applicationContext, Locale.getDefault())
+    val addresses: List<Address> = geocoder.getFromLocation(location!!.latitude, location.longitude, 1)
+    return addresses[0].locality
   }
 
 }

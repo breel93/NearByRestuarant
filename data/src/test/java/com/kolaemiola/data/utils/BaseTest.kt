@@ -47,21 +47,6 @@ internal open class BaseTest{
   fun stopService() {
     mockWebServer.shutdown()
   }
-  fun enqueueResponse(fileName: String, headers: Map<String, String> = emptyMap()) {
-    val inputStream = javaClass.classLoader!!
-      .getResourceAsStream("api-response/$fileName")
-    val source = inputStream.source().buffer()
-
-    val mockResponse = MockResponse()
-
-    for ((key, value) in headers) {
-      mockResponse.addHeader(key, value)
-    }
-    mockWebServer.enqueue(
-      mockResponse
-        .setBody(source.readString(Charsets.UTF_8))
-    )
-  }
   private fun buildOkHttpClient(httpLoggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
     return OkHttpClient.Builder()
       .addInterceptor(httpLoggingInterceptor)

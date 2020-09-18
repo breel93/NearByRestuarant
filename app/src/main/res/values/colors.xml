@@ -6,6 +6,9 @@
     <color name="colorGrey">#c3c3c3</color>
     <color name="colorSmokeWhite">#F5F5F5</color>
     <color name="colorDarkLightBlue">#0194D5</color>
+    <color name="darkTeal">#1A292B</color>
+    <color name="dark">#212121</color>
     <color name="hotPink">#ff69b4</color>
     <color name="colorLightGreen">#2BCBBA</color>
+    <color name="deepTeal">#00685F</color>
 </resources>

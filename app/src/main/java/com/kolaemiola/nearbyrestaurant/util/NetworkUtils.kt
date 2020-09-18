@@ -1,4 +1,4 @@
-package com.kolaemiola.nearbyrestaurant
+package com.kolaemiola.nearbyrestaurant.util
 
 import android.content.Context
 import android.net.ConnectivityManager

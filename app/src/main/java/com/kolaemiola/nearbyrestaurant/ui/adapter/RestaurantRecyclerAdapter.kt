@@ -25,8 +25,10 @@ class RestaurantRecyclerAdapter (
     holder.bind(venue, venueClickListener)
   }
   inner class VenueViewHolder(binding: VenueItemBinding) : RecyclerView.ViewHolder(binding.root){
-    fun bind(venue: Venue, VenueClickListener: VenueClickListener){
-      itemView.setOnClickListener{VenueClickListener.showVenueDetail(venue)}
+    fun bind(venue: Venue, venueClickListener: VenueClickListener){
+      itemView.setOnClickListener{
+        venueClickListener.showVenueDetail(venue)
+      }
       binding.restaurantName.text = venue.name
       binding.retuarantAddress.text = venue.location.address
     }
@@ -36,7 +38,6 @@ class RestaurantRecyclerAdapter (
       override fun areItemsTheSame(oldItem: Venue, newItem: Venue): Boolean {
         return oldItem.name== newItem.name
       }
-
       override fun areContentsTheSame(oldItem: Venue, newItem: Venue): Boolean {
         return oldItem == newItem
       }

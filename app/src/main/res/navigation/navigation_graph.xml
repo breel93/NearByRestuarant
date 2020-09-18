@@ -12,9 +12,10 @@
       tools:layout="@layout/fragment_maps" >
     <action
         android:id="@+id/action_mapsFragment_to_restaurantDetailFragment"
-        app:destination="@id/restaurantDetailFragment" />
+        app:destination="@id/restaurantDetailFragment"
+        />
   </fragment>
-  <fragment
+  <dialog
       android:id="@+id/restaurantDetailFragment"
       android:name="com.kolaemiola.nearbyrestaurant.ui.detail.RestaurantDetailFragment"
       android:label="RestaurantDetailFragment" />

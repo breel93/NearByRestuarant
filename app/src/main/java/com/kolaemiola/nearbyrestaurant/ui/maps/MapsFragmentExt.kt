@@ -2,14 +2,10 @@ package com.kolaemiola.nearbyrestaurant.ui.maps
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.location.Address
-import android.location.Geocoder
-import android.location.Location
 import androidx.core.app.ActivityCompat
 import com.google.android.material.snackbar.Snackbar
 import com.kolaemiola.nearbyrestaurant.R
 import timber.log.Timber
-import java.util.*
 
 
 private const val REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34
@@ -41,8 +37,4 @@ fun MapsFragment.foregroundPermissionApproved() :
   Manifest.permission.ACCESS_FINE_LOCATION
 )
 
-fun MapsFragment.getCityName(location: Location) : String{
-  val geocoder = Geocoder(requireContext(), Locale.getDefault())
-  val addresses: List<Address> = geocoder.getFromLocation(location.latitude, location.longitude, 1)
-  return addresses[0].getAddressLine(0)
-}
+

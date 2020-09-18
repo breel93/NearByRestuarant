@@ -76,6 +76,8 @@ dependencies {
   implementation 'androidx.appcompat:appcompat:1.2.0'
   kapt deps.lifecycleCompiler
 
+  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.1.1'
+
   //navigation
   implementation deps.navigationFragment
   implementation deps.navigationUI
@@ -102,6 +104,8 @@ dependencies {
   //retrofit
   implementation deps.retrofit
   implementation deps.moshi
+  implementation deps.gson
+
 
 
   //coroutines

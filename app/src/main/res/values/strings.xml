@@ -19,4 +19,10 @@
 
   <string name="preference_file_key">com.example.android.while_in_use_location.PREFERENCE_FILE_KEY</string>
   <string name="no_location_text">No current location</string>
+  <string name="restaurantAddress"><![CDATA[50 W 23rd St (btwn 5th & 6th Ave)]]></string>
+  <string name="restaurantName">Brooklyn Roasting Company</string>
+  <string name="city_name">New York</string>
+  <string name="stateName">NY</string>
+  <string name="error_check_internet_connection">Check Internet Connection</string>
+  <string name="error_oops_error_occured">Oops!! An Error Occurred</string>
 </resources>

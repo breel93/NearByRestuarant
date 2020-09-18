@@ -22,7 +22,7 @@ class MainViewModelTest{
 
   @Before
   fun setUp(){
-    viewModel = MainViewModel(getRestaurantUseCase)
+//    viewModel = MainViewModel(getRestaurantUseCase)
   }
 
 }

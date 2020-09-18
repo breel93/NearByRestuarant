@@ -17,6 +17,7 @@ class GetRestaurantUseCase @Inject constructor(
 
 
   override fun execute(params: VenuesQueryParams?): Flow<List<VenueModel>> {
+
     return getRestaurantRepository.getRestaurants(latLong = params!!.latLong, near = params.near,
       radius = params.radius, limit = params.limit )
   }
