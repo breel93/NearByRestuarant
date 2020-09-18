@@ -1,17 +1,34 @@
+/**
+ *  Designed and developed by Kola Emiola
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package com.kolaemiola.nearbyrestaurant.ui
 
 import android.app.Application
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
-import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.LocationRequest
 import com.kolaemiola.domain.model.VenuesQueryParams
 import com.kolaemiola.domain.usecase.GetRestaurantUseCase
-import com.kolaemiola.nearbyrestaurant.model.RestaurantViewState
 import com.kolaemiola.nearbyrestaurant.mapper.toAppModel
+import com.kolaemiola.nearbyrestaurant.model.RestaurantViewState
 import com.kolaemiola.nearbyrestaurant.model.Venue
 import com.kolaemiola.nearbyrestaurant.recent_venue.CachedVenueRepo
 import com.kolaemiola.nearbyrestaurant.ui.maps.fusedLocationFlow
@@ -22,19 +39,22 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Locale
+import kotlin.collections.ArrayList
+import kotlin.collections.List
+import kotlin.collections.isNotEmpty
+import kotlin.collections.map
 
 class MainViewModel @ViewModelInject constructor(
   private val getRestaurantUseCase: GetRestaurantUseCase,
   private val cachedVenueRepo: CachedVenueRepo,
   application: Application
-) : AndroidViewModel(application){
+) : AndroidViewModel(application) {
 
   private val _searchRestaurantState = MutableLiveData<RestaurantViewState>()
-  val searchRestaurantState : LiveData<RestaurantViewState> = _searchRestaurantState
+  val searchRestaurantState: LiveData<RestaurantViewState> = _searchRestaurantState
 
   private val _usersLastLocation = MutableLiveData<Location>()
-  val usersLocation : LiveData<Location> = _usersLastLocation
-
+  val usersLocation: LiveData<Location> = _usersLastLocation
 
   private val recentCachedList = ArrayList<Venue>()
 
@@ -43,14 +63,12 @@ class MainViewModel @ViewModelInject constructor(
 
   init {
     _searchRestaurantState.value = RestaurantViewState()
-
   }
 
-
-  fun getRestaurants(latLong:String, radius: Int, limit: Int ){
+  fun getRestaurants(latLong: String, radius: Int, limit: Int) {
     viewModelScope.launch {
       val near = getCityName(application = getApplication())
-      val venuesQueryParams = VenuesQueryParams(latLong, near,radius,limit)
+      val venuesQueryParams = VenuesQueryParams(latLong, near, radius, limit)
       getRestaurantUseCase(venuesQueryParams).onStart {
         _searchRestaurantState.value = _searchRestaurantState.value?.copy(
           loading = true
@@ -63,24 +81,23 @@ class MainViewModel @ViewModelInject constructor(
       }.collect { results ->
         _searchRestaurantState.value = _searchRestaurantState.value?.copy(
           loading = false,
-          venues = results.map { it.toAppModel(it.locationModel.toAppModel())
+          venues = results.map {
+            it.toAppModel(it.locationModel.toAppModel())
           }.also {
             Timber.i("characters fetched successfully: $it ")
           }
         )
       }
     }
-
   }
 
-  fun locationRequest(locationRequest: LocationRequest){
+  fun locationRequest(locationRequest: LocationRequest) {
     viewModelScope.launch {
-      fusedLocationFlow(locationRequest, getApplication()).collect{ location ->
+      fusedLocationFlow(locationRequest, getApplication()).collect { location ->
         _usersLastLocation.value = location
       }
     }
   }
-
 
   // For scrolling to marker position based on place of interest results
   private val _currentMarkerPosition = MutableLiveData<Int>()
@@ -97,15 +114,16 @@ class MainViewModel @ViewModelInject constructor(
     _currentPlaceIndex.value = placeIndex
   }
 
-  //cache region
+  // cache region
   fun getRecentChecked() {
     when (val cachedVenues = cachedVenueRepo.getCachedVenue()) {
       is Success -> {
         recentCachedList.clear()
         recentCachedList.addAll(cachedVenues.data)
         _cachedVenues.value = recentCachedList
-        if(recentCachedList.isNotEmpty()){
-          _searchRestaurantState.value = _searchRestaurantState.value?.copy(venuesInitial = cachedVenues.data, loading = false)
+        if (recentCachedList.isNotEmpty()) {
+          _searchRestaurantState.value =
+            _searchRestaurantState.value?.copy(venuesInitial = cachedVenues.data, loading = false)
         }
       }
     }
@@ -114,26 +132,26 @@ class MainViewModel @ViewModelInject constructor(
   private var _addRecentCheckData = MutableLiveData<Boolean>()
   val addRecentCheckData: LiveData<Boolean>
     get() = _addRecentCheckData
+
   fun updateRecentCheck(venues: List<Venue>) {
     cachedVenueRepo.updateCacheVenue(venues = venues) { updateCompleted ->
       _addRecentCheckData.value = updateCompleted
     }
   }
 
-  fun clearCache(){
+  fun clearCache() {
     cachedVenueRepo.clearCacheVenue {}
   }
 
-
   /***
-  * temp, TODO clean up getting city name
+   * temp, TODO clean up getting city name
    * because of possible memory likes
    */
-  private fun getCityName(application: Application) : String{
-   val location = _usersLastLocation.value
+  private fun getCityName(application: Application): String {
+    val location = _usersLastLocation.value
     val geocoder = Geocoder(application.applicationContext, Locale.getDefault())
-    val addresses: List<Address> = geocoder.getFromLocation(location!!.latitude, location.longitude, 1)
+    val addresses: List<Address> =
+      geocoder.getFromLocation(location!!.latitude, location.longitude, 1)
     return addresses[0].locality
   }
-
 }

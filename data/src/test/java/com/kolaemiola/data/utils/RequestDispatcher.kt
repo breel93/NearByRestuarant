@@ -1,17 +1,28 @@
+/**
+ *  Designed and developed by Kola Emiola
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package com.kolaemiola.data.utils
 
-import com.kolaemiola.data.BuildConfig.FOURSQUARE_API_KEY
-import com.kolaemiola.data.BuildConfig.FOURSQUARE_SECRET
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 import okhttp3.mockwebserver.SocketPolicy
 import okio.buffer
 import okio.source
-import java.net.HttpURLConnection
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
-
 
 internal class RequestDispatcher : Dispatcher() {
 
@@ -20,7 +31,7 @@ internal class RequestDispatcher : Dispatcher() {
       "$QUERY_PATH/search?$SEARCH_QUERY" -> {
         createSuccessResponseFromFile(file = "foursquare_response.json")
       }
-      else -> throw IllegalArgumentException("Unknown Request Path ${request.path.toString()}")
+      else -> throw IllegalArgumentException("Unknown Request Path ${request.path}")
     }
   }
 
@@ -38,7 +49,7 @@ internal class RequestDispatcher : Dispatcher() {
   private fun createTimeOut(request: RecordedRequest): MockResponse {
     return MockResponse()
       .setSocketPolicy(SocketPolicy.NO_RESPONSE)
-      .throttleBody(BYTES_PER_PERIOD,PERIOD, TimeUnit.SECONDS)
+      .throttleBody(BYTES_PER_PERIOD, PERIOD, TimeUnit.SECONDS)
   }
   private fun createErrorResponseFromFile(file: String): MockResponse {
     val mockResponse = MockResponse()
@@ -52,5 +63,4 @@ internal class RequestDispatcher : Dispatcher() {
     private const val BYTES_PER_PERIOD = 1024L
     private const val PERIOD = 2L
   }
-
 }

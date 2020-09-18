@@ -68,3 +68,5 @@ dependencies {
   testImplementation testDeps.googleTruth
   testImplementation testDeps.coroutines_test
 }
+
+apply from: rootProject.file('gradle/spotless.gradle')
